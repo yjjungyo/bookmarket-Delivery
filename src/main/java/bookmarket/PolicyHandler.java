@@ -15,11 +15,20 @@ public class PolicyHandler{
 
     }
 
+    @Autowired
+    DeliveryRepository deliveryRepository;
+
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverPaid_Ship(@Payload Paid paid){
 
         if(paid.isMe()){
             System.out.println("##### listener Ship : " + paid.toJson());
+            Delivery delivery = new Delivery();
+            delivery.setOrderId(paid.getOrderId());
+            delivery.setCustomerId(paid.getCustomerId());
+            delivery.setStatus("Shipped");
+
+            deliveryRepository.save(delivery);
         }
     }
     @StreamListener(KafkaProcessor.INPUT)
@@ -27,6 +36,12 @@ public class PolicyHandler{
 
         if(payCanceled.isMe()){
             System.out.println("##### listener DeliveryCancel : " + payCanceled.toJson());
+            Delivery delivery = new Delivery();
+            delivery.setOrderId(payCanceled.getOrderId());
+            delivery.setCustomerId(payCanceled.getCustomerId());
+            delivery.setStatus("DeliveryCancelled");
+
+            deliveryRepository.save(delivery);
         }
     }
 
