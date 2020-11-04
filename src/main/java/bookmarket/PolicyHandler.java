@@ -8,6 +8,8 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PolicyHandler{
     @StreamListener(KafkaProcessor.INPUT)
@@ -36,12 +38,14 @@ public class PolicyHandler{
 
         if(payCanceled.isMe()){
             System.out.println("##### listener DeliveryCancel : " + payCanceled.toJson());
-            Delivery delivery = new Delivery();
-            delivery.setOrderId(payCanceled.getOrderId());
-            delivery.setCustomerId(payCanceled.getCustomerId());
-            delivery.setStatus("DeliveryCancelled");
 
-            deliveryRepository.save(delivery);
+            List<Delivery> deliveryList = deliveryRepository.findByOrderId(payCanceled.getOrderId());
+            for(Delivery delivery : deliveryList){
+                // view 객체에 이벤트의 eventDirectValue 를 set 함
+                delivery.setStatus("DeliveryCanceled");
+                // view 레파지 토리에 save
+                deliveryRepository.save(delivery);
+            }
         }
     }
 
