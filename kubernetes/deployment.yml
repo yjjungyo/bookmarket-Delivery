@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: delivery
   labels:
-    app: delivery
+    app: delivery 
 spec:
   replicas: 1
   selector:
